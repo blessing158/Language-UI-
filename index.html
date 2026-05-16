@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Advanced Robotics AI</title>
+
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      color: white;
+      font-family: Arial;
+    }
+
+    /* TOP BAR */
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 15px;
+      background: #111;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: bold;
+    }
+
+    .logo img {
+      width: 30px;
+      height: 30px;
+    }
+
+    .menu {
+      font-size: 25px;
+      cursor: pointer;
+    }
+
+    /* CHAT AREA */
+    #chat {
+      height: 65vh;
+      overflow-y: auto;
+      padding: 10px;
+    }
+
+    .user {
+      text-align: right;
+      margin: 5px;
+      color: #00ffcc;
+    }
+
+    .ai {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 5px;
+    }
+
+    .ai img {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* SUGGESTION BUTTONS */
+    .suggestions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      padding: 10px;
+      flex-wrap: wrap;
+    }
+
+    .suggestions button {
+      background: #222;
+      color: white;
+      border: 1px solid #00ffcc;
+      padding: 8px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+
+    /* INPUT BAR */
+    .bar {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      display: flex;
+      padding: 10px;
+      background: #111;
+    }
+
+    input {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      outline: none;
+    }
+
+    /* ROUND SEND BUTTON */
+    button.send {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background: #00ffcc;
+      border: none;
+      margin-left: 8px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6e/Robot_icon.png">
+    Advanced Robotics
+  </div>
+
+  <div class="menu">⋮</div>
+</div>
+
+<!-- CHAT -->
+<div id="chat"></div>
+
+<!-- SUGGESTIONS -->
+<div class="suggestions">
+  <button onclick="quick('Generate a picture')">Generate a picture</button>
+  <button onclick="quick('Help me')">Help me</button>
+  <button onclick="quick('Others')">Others</button>
+</div>
+
+<!-- INPUT -->
+<div class="bar">
+  <input id="msg" placeholder="Type message..." />
+  <button class="send" onclick="send()">➤</button>
+</div>
+
+<script>
+async function quick(text) {
+  document.getElementById("msg").value = text;
+  send();
+}
+
+async function send() {
+  let input = document.getElementById("msg").value;
+
+  document.getElementById("chat").innerHTML +=
+    `<div class="user">${input}</div>`;
+
+  document.getElementById("msg").value = "";
+
+  let key = localStorage.getItem("apiKey");
+
+  let res = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + key
+    },
+    body: JSON.stringify({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: input }]
+    })
+  });
+
+  let data = await res.json();
+  let reply = data.choices[0].message.content;
+
+  document.getElementById("chat").innerHTML +=
+    `<div class="ai">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6e/Robot_icon.png">
+      ${reply}
+    </div>`;
+}
+</script>
+
+</body>
+</html>
